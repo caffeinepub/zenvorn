@@ -7,11 +7,9 @@ import {
   Globe,
   Instagram,
   Menu,
-  Moon,
   Radio,
   Search,
   Shield,
-  Sun,
   TrendingUp,
   X,
 } from "lucide-react";
@@ -50,37 +48,6 @@ const staggerContainer: Variants = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.1 } },
 };
-
-// ──────────────────────────────────────────────
-// THEME CONTEXT
-// ──────────────────────────────────────────────
-
-type Theme = "light" | "dark";
-
-function useTheme(): [Theme, () => void] {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem("zenvorn-theme");
-    return saved === "dark" ? "dark" : "light";
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-      document.documentElement.style.colorScheme = "dark";
-    } else {
-      root.classList.remove("dark");
-      document.documentElement.style.colorScheme = "light";
-    }
-    localStorage.setItem("zenvorn-theme", theme);
-  }, [theme]);
-
-  const toggle = useCallback(() => {
-    setTheme((t) => (t === "light" ? "dark" : "light"));
-  }, []);
-
-  return [theme, toggle];
-}
 
 // ──────────────────────────────────────────────
 // HELPERS
@@ -374,31 +341,6 @@ function BreakingNewsTicker({ headlines }: { headlines: string[] }) {
         </div>
       </div>
     </div>
-  );
-}
-
-// ──────────────────────────────────────────────
-// DARK MODE TOGGLE
-// ──────────────────────────────────────────────
-
-function DarkModeToggle({
-  theme,
-  onToggle,
-}: {
-  theme: "light" | "dark";
-  onToggle: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-label={
-        theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-      }
-      className="p-2 rounded-sm transition-colors text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
-    >
-      {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
-    </button>
   );
 }
 
@@ -744,8 +686,6 @@ function NavBar({
   onSearchOpen,
   articles,
   onArticleClick,
-  theme,
-  onThemeToggle,
 }: {
   onCategoryClick: (cat: string | null) => void;
   onLogoClick: () => void;
@@ -754,8 +694,6 @@ function NavBar({
   onSearchOpen: () => void;
   articles: Article[];
   onArticleClick: (a: Article) => void;
-  theme: "light" | "dark";
-  onThemeToggle: () => void;
 }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -900,8 +838,6 @@ function NavBar({
               )}
             </AnimatePresence>
           </div>
-
-          <DarkModeToggle theme={theme} onToggle={onThemeToggle} />
 
           <button
             type="button"
@@ -2676,7 +2612,6 @@ export default function App() {
   const [view, setView] = useState<View>({ type: "home" });
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [theme, toggleTheme] = useTheme();
 
   const { data: articles = FALLBACK_ARTICLES, isLoading } = useGetAllArticles();
   const breakingHeadlines = BREAKING_NEWS_FALLBACK;
@@ -2720,8 +2655,6 @@ export default function App() {
         onSearchOpen={handleSearchOpen}
         articles={articles}
         onArticleClick={handleArticleClick}
-        theme={theme}
-        onThemeToggle={toggleTheme}
       />
 
       <SearchOverlay
